@@ -15,11 +15,6 @@ abstract class AppDatabase: RoomDatabase() {
 
     companion object {
         private var INSTANCE: AppDatabase? = null
-      /*  val MIGRATION_1_2: Migration = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE Urls " + " ADD COLUMN created_at LONG")
-            }
-        }*/
 
         fun getInstance(context: Context): AppDatabase? {
             if (INSTANCE == null) {

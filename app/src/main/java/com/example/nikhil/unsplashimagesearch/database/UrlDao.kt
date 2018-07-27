@@ -16,8 +16,8 @@ interface UrlDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(urlsList: ArrayList<Urls>)
 
-    @Query("SELECT * FROM urls WHERE `query` IN (:query) ORDER BY created_at ASC")
+    @Query("SELECT * FROM urls WHERE `query` IN (:query) ORDER BY uid ASC ")
     fun loadAllUrlsByQuery(query:String): Single<List<Urls>>
 
-
+/*ORDER BY created_at ASC*/
 }

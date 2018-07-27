@@ -37,10 +37,10 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView {
         //for initial case
         binding.indeterminateBar.visibility = View.GONE
 
-        presenter = MainActivityPresenterImpl(this, this)
+
         setupToolbar()
         setupRecyclerView()
-
+        presenter = MainActivityPresenterImpl(adapter,this, this)
     }
 
     override fun onDestroy() {

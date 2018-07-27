@@ -1,6 +1,7 @@
 package com.example.nikhil.unsplashimagesearch.mvp
 
 import android.content.Context
+import com.example.nikhil.unsplashimagesearch.adapter.ImageRecyclerAdapter
 import com.example.nikhil.unsplashimagesearch.database.AppDatabase
 import com.example.nikhil.unsplashimagesearch.database.mapper.Mapper
 import com.example.nikhil.unsplashimagesearch.model.ImageModel
@@ -21,10 +22,14 @@ class MainActivityPresenterImpl : MainContract.MainActivityPresenter {
     private var currentQuery: String = ""
     private val QUERY_INCORRECT_MESSAGE: String = """Query empty or repeated"""
     private var context: Context
+    private var adapter: ImageRecyclerAdapter?
 
-    constructor(context: Context, view: MainContract.MainActivityView) {
+    constructor(adapter:ImageRecyclerAdapter,
+                context: Context,
+                view: MainContract.MainActivityView) {
         this.view = view
         this.context = context
+        this.adapter = adapter
     }
 
     init {
@@ -37,7 +42,8 @@ class MainActivityPresenterImpl : MainContract.MainActivityPresenter {
         if (isLoadFromScroll) {
             view?.showProgress()
             getSearchObservableAndSendToView(currentQuery, page)
-        } else if (query != null && query.length > 0 && !query.equals(currentQuery)) {
+        } else if (query != null && query.length > 0 &&
+                (!query.equals(currentQuery) || adapter?.itemCount==0 )) {
             currentQuery = query
             view?.showProgress()
             view?.reset()
@@ -85,7 +91,6 @@ class MainActivityPresenterImpl : MainContract.MainActivityPresenter {
 
     private fun insertUrlsToDatabase(result: ArrayList<Urls>) {
 
-
         val disposable: Disposable = Observable.fromCallable(object : Callable<Any> {
             @Throws(Exception::class)
             override fun call(): Unit? {
@@ -104,6 +109,7 @@ class MainActivityPresenterImpl : MainContract.MainActivityPresenter {
             compositeDisposable.dispose()
             interactor?.unbind()
             interactor = null
+            adapter = null
         }
     }
 
