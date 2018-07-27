@@ -6,15 +6,15 @@ import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 
 
-@Entity(indices = arrayOf(Index(value =  ["query", "raw", "full", "regular", "small", "thumb"] ,
+@Entity(indices = arrayOf(Index(value = ["query", "raw", "full", "regular", "small", "thumb"],
         unique = true)))
 data class Urls(
 
         @PrimaryKey(autoGenerate = true)
-        var uid:Int,
+        var uid: Int,
 
         @ColumnInfo(name = "query")
-        var query:String,
+        var query: String,
 
         @ColumnInfo(name = "raw")
         val raw: String,
@@ -29,5 +29,8 @@ data class Urls(
         val small: String,
 
         @ColumnInfo(name = "thumb")
-        val thumb: String
+        val thumb: String,
+
+        @ColumnInfo(name = "created_at")
+        var created_at: Long
 )

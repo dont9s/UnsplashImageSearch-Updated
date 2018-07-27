@@ -6,8 +6,8 @@ import com.example.nikhil.unsplashimagesearch.retrofit.RestClient
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
-class MainActivityModelImpl constructor(presenter: MainActivityMVP.MainActivityPresenter) :
-        MainActivityMVP.MainActivityModel {
+class MainActivityInteractorImpl constructor(presenter: MainContract.MainActivityPresenter) :
+        MainContract.MainActivityInteractor {
 
     override fun doSearch(query: String, page: Int):Observable<ImageModel> {
 

@@ -14,21 +14,21 @@ import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.Callable
 
 
-class MainActivityPresenterImpl : MainActivityMVP.MainActivityPresenter {
-    private var view: MainActivityMVP.MainActivityView? = null
+class MainActivityPresenterImpl : MainContract.MainActivityPresenter {
+    private var view: MainContract.MainActivityView? = null
     private var compositeDisposable: CompositeDisposable
-    private var model: MainActivityMVP.MainActivityModel? = null
+    private var interactor: MainContract.MainActivityInteractor? = null
     private var currentQuery: String = ""
     private val QUERY_INCORRECT_MESSAGE: String = """Query empty or repeated"""
     private var context: Context
 
-    constructor(context: Context, view: MainActivityMVP.MainActivityView) {
+    constructor(context: Context, view: MainContract.MainActivityView) {
         this.view = view
         this.context = context
     }
 
     init {
-        model = MainActivityModelImpl(this)
+        interactor = MainActivityInteractorImpl(this)
         compositeDisposable = CompositeDisposable()
     }
 
@@ -48,7 +48,7 @@ class MainActivityPresenterImpl : MainActivityMVP.MainActivityPresenter {
     }
 
     private fun getSearchObservableAndSendToView(query: String, page: Int) {
-        val imageModelObservable: Observable<ImageModel>? = model?.doSearch(query, page)
+        val imageModelObservable: Observable<ImageModel>? = interactor?.doSearch(query, page)
 
 
         val disposable: Disposable? = imageModelObservable
@@ -102,8 +102,8 @@ class MainActivityPresenterImpl : MainActivityMVP.MainActivityPresenter {
     override fun unbind() {
         if (compositeDisposable != null && !compositeDisposable.isDisposed){
             compositeDisposable.dispose()
-            model?.unbind()
-            model = null
+            interactor?.unbind()
+            interactor = null
         }
     }
 

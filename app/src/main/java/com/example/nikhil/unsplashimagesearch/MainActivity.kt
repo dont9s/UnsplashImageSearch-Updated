@@ -10,25 +10,25 @@ import android.widget.Toast
 import com.example.nikhil.unsplashimagesearch.adapter.ImageRecyclerAdapter
 import com.example.nikhil.unsplashimagesearch.databinding.ActivityMainBinding
 import com.example.nikhil.unsplashimagesearch.model.Urls
-import com.example.nikhil.unsplashimagesearch.mvp.MainActivityMVP
+import com.example.nikhil.unsplashimagesearch.mvp.MainContract
 import com.example.nikhil.unsplashimagesearch.mvp.MainActivityPresenterImpl
 import com.example.nikhil.unsplashimagesearch.util.EndlessRecyclerViewScrollListener
 import com.example.nikhil.unsplashimagesearch.util.VarColumnGridLayoutManager
 
-class MainActivity : AppCompatActivity(), MainActivityMVP.MainActivityView {
-    lateinit var binding: ActivityMainBinding
+class MainActivity : AppCompatActivity(), MainContract.MainActivityView {
+    private lateinit var binding: ActivityMainBinding
 
-    lateinit var adapter: ImageRecyclerAdapter
+    private lateinit var adapter: ImageRecyclerAdapter
 
-    var isOffline: Boolean = false
+    private var isOffline: Boolean = false
 
-    lateinit var gridLayoutManager: VarColumnGridLayoutManager
+    private lateinit var gridLayoutManager: VarColumnGridLayoutManager
 
-    lateinit var scrollListener: EndlessRecyclerViewScrollListener
+    private var scrollListener: EndlessRecyclerViewScrollListener? = null
 
     var imageUrlList: ArrayList<Urls> = ArrayList()
 
-    private var presenter: MainActivityMVP.MainActivityPresenter? = null
+    private var presenter: MainContract.MainActivityPresenter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -44,11 +44,11 @@ class MainActivity : AppCompatActivity(), MainActivityMVP.MainActivityView {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         if (presenter != null)
             presenter?.unbind()
-
+        scrollListener = null
         presenter = null
+        super.onDestroy()
     }
 
     //onSearch being called here
@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity(), MainActivityMVP.MainActivityView {
 
         binding.rvImages.adapter = adapter
 
-        binding.rvImages.addOnScrollListener(scrollListener)
+        binding.rvImages.addOnScrollListener(scrollListener as EndlessRecyclerViewScrollListener)
         /*setting ends*/
     }
 
@@ -138,7 +138,7 @@ class MainActivity : AppCompatActivity(), MainActivityMVP.MainActivityView {
             imageUrlList.clear()
             adapter.notifyDataSetChanged()
             if (scrollListener != null)
-                scrollListener.setCurrentPage(1)
+                scrollListener?.setCurrentPage(1)
         }
     }
 
