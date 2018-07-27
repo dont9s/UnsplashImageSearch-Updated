@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="progressbar_top_margin">10dp</dimen>
+
+    <dimen name="text_20">20sp</dimen>
+    <dimen name="text_50">50sp</dimen>
+</resources>

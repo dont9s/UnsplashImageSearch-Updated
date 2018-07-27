@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/mit_two_col"
+        android:title="@string/action_two_col"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/mit_three_col"
+        android:title="@string/action_three_col"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/mit_four_col"
+        android:title="@string/action_four_col"
+        app:showAsAction="never"/>
+
+</menu>
