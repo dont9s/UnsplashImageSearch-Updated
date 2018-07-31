@@ -1,18 +1,12 @@
 package com.example.nikhil.unsplashimagesearch.adapter
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
-import android.support.v4.app.ActivityOptionsCompat
-import android.support.v4.content.ContextCompat.startActivity
 import android.support.v4.view.ViewCompat
 import android.support.v7.widget.AppCompatImageView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import com.example.nikhil.unsplashimagesearch.ImageActivity
 import com.example.nikhil.unsplashimagesearch.R
 import com.example.nikhil.unsplashimagesearch.model.Urls
 import com.example.nikhil.unsplashimagesearch.util.ImageClickListener
@@ -44,22 +38,17 @@ class ImageRecyclerAdapter constructor(private var imageUrlList: ArrayList<Urls>
                     .into(viewHolder.ivImage)
             ViewCompat.setTransitionName(viewHolder.ivImage as View, imageUrlList[position].small)
 
-            viewHolder.ivImage!!.setOnClickListener(View.OnClickListener { view: View? ->
+            viewHolder.ivImage.setOnClickListener {
                 imageClickListener.onImageClick(viewHolder.adapterPosition,
                         imageUrlList[position],
-                        viewHolder.ivImage!!)
-            })
+                        viewHolder.ivImage)
+            }
         }
     }
 
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var ivImage: AppCompatImageView? = null
-
-        init {
-            ivImage = itemView.findViewById(R.id.iv_image)
-        }
-
+        var ivImage: AppCompatImageView = itemView.findViewById(R.id.iv_image)
     }
 
 }

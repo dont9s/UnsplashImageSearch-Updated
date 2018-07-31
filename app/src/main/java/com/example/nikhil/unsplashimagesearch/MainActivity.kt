@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView, ImageCl
 
     private var presenter: MainContract.MainActivityPresenter? = null
 
-    private var imageClickPosition:Int = 0
+    private var imageClickPosition: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,14 +63,6 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView, ImageCl
     override fun onResume() {
         scrollToPosition()
         super.onResume()
-    }
-
-    override fun onDestroy() {
-        if (presenter != null)
-            presenter?.unbind()
-        scrollListener = null
-        presenter = null
-        super.onDestroy()
     }
 
     //onSearch being called here
@@ -115,11 +107,11 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView, ImageCl
         adapter.notifyItemRangeInserted(curSize, imageUrlList.size - 1)
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toolbar_menu, menu)
         return true
     }
+
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         // Handle item selection
@@ -170,7 +162,7 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView, ImageCl
 
     override fun onImageClick(pos: Int, imageUrls: Urls, shareImageView: AppCompatImageView) {
         imageClickPosition = pos
-        val intent: Intent = Intent(this, ImageActivity::class.java)
+        val intent = Intent(this, ImageActivity::class.java)
 
         intent.putExtra(Constant.EXTRA_IMAGE_URL_LIST, getSmallUrlStringListFromDataSet())
         intent.putExtra(Constant.EXTRA_IMAGE_TRANSITION_NAME,
@@ -185,9 +177,9 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView, ImageCl
         startActivity(intent, options.toBundle())
     }
 
-    private fun getSmallUrlStringListFromDataSet():ArrayList<String>{
-        val smallStringList : ArrayList<String> = ArrayList()
-        for(urls:Urls in imageUrlList){
+    private fun getSmallUrlStringListFromDataSet(): ArrayList<String> {
+        val smallStringList: ArrayList<String> = ArrayList()
+        for (urls: Urls in imageUrlList) {
             smallStringList.add(urls.small)
         }
         return smallStringList
@@ -195,7 +187,7 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView, ImageCl
 
     override fun onActivityReenter(resultCode: Int, data: Intent?) {
         super.onActivityReenter(resultCode, data)
-        if(resultCode == Activity.RESULT_OK && data != null)
+        if (resultCode == Activity.RESULT_OK && data != null)
             imageClickPosition = data.getIntExtra(Constant.EXTRA_IMAGE_EXIT_POS,
                     imageClickPosition)
     }
@@ -207,7 +199,7 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView, ImageCl
     private fun prepareTransitions() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.exitTransition =  (TransitionInflater.from(this)
+            window.exitTransition = (TransitionInflater.from(this)
                     .inflateTransition(R.transition.change_image_transform))
         }
 
@@ -262,5 +254,12 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView, ImageCl
         })
     }
 
+    override fun onDestroy() {
+        if (presenter != null)
+            presenter?.unbind()
+        scrollListener = null
+        presenter = null
+        super.onDestroy()
+    }
 
 }
