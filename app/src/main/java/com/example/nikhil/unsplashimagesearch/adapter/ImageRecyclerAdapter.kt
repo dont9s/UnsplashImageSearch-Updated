@@ -1,26 +1,30 @@
 package com.example.nikhil.unsplashimagesearch.adapter
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.support.v4.app.ActivityOptionsCompat
+import android.support.v4.content.ContextCompat.startActivity
+import android.support.v4.view.ViewCompat
 import android.support.v7.widget.AppCompatImageView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import com.example.nikhil.unsplashimagesearch.ImageActivity
 import com.example.nikhil.unsplashimagesearch.R
 import com.example.nikhil.unsplashimagesearch.model.Urls
+import com.example.nikhil.unsplashimagesearch.util.ImageClickListener
 import com.squareup.picasso.Picasso
 
-class ImageRecyclerAdapter constructor(imageUrlList: ArrayList<Urls>, context: Context) :
+class ImageRecyclerAdapter constructor(private var imageUrlList: ArrayList<Urls>,
+                                       private var context: Context,
+                                       private var imageClickListener: ImageClickListener) :
         RecyclerView.Adapter<ImageRecyclerAdapter.ViewHolder>() {
 
 
-    private var imageUrlList: ArrayList<Urls>
-    private var mInflater: LayoutInflater
-
-    init {
-        this.imageUrlList = imageUrlList
-        mInflater = LayoutInflater.from(context)
-    }
+    private var mInflater: LayoutInflater = LayoutInflater.from(context)
 
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, p1: Int): ViewHolder {
@@ -34,23 +38,28 @@ class ImageRecyclerAdapter constructor(imageUrlList: ArrayList<Urls>, context: C
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         if (imageUrlList != null && !imageUrlList.isEmpty()) {
-            val urls: Urls = imageUrlList.get(position)
+            val urls: Urls = imageUrlList[position]
             Picasso.get()
                     .load(urls.small)
                     .into(viewHolder.ivImage)
+            ViewCompat.setTransitionName(viewHolder.ivImage as View, imageUrlList[position].small)
+
+            viewHolder.ivImage!!.setOnClickListener(View.OnClickListener { view: View? ->
+                imageClickListener.onImageClick(viewHolder.adapterPosition,
+                        imageUrlList[position],
+                        viewHolder.ivImage!!)
+            })
         }
     }
 
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var ivImage: AppCompatImageView? = null
 
         init {
             ivImage = itemView.findViewById(R.id.iv_image)
-            ivImage?.setOnClickListener(this)
         }
 
-        override fun onClick(p0: View?) {
-        }
     }
+
 }

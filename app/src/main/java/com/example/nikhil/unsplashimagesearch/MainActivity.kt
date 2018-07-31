@@ -1,22 +1,34 @@
 package com.example.nikhil.unsplashimagesearch
 
+import android.app.Activity
+import android.content.Intent
 import android.databinding.DataBindingUtil
+import android.os.Build
 import android.os.Bundle
+import android.support.v4.app.ActivityOptionsCompat
+import android.support.v4.app.SharedElementCallback
+import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.AppCompatImageView
+import android.transition.TransitionInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.View.OnLayoutChangeListener
 import android.widget.Toast
 import com.example.nikhil.unsplashimagesearch.adapter.ImageRecyclerAdapter
-import com.example.nikhil.unsplashimagesearch.databinding.ActivityMainBinding
+import com.example.nikhil.unsplashimagesearch.databinding.MainBinding
 import com.example.nikhil.unsplashimagesearch.model.Urls
-import com.example.nikhil.unsplashimagesearch.mvp.MainContract
 import com.example.nikhil.unsplashimagesearch.mvp.MainActivityPresenterImpl
+import com.example.nikhil.unsplashimagesearch.mvp.MainContract
+import com.example.nikhil.unsplashimagesearch.util.Constant
 import com.example.nikhil.unsplashimagesearch.util.EndlessRecyclerViewScrollListener
+import com.example.nikhil.unsplashimagesearch.util.ImageClickListener
 import com.example.nikhil.unsplashimagesearch.util.VarColumnGridLayoutManager
 
-class MainActivity : AppCompatActivity(), MainContract.MainActivityView {
-    private lateinit var binding: ActivityMainBinding
+
+class MainActivity : AppCompatActivity(), MainContract.MainActivityView, ImageClickListener {
+    private lateinit var binding: MainBinding
 
     private lateinit var adapter: ImageRecyclerAdapter
 
@@ -26,9 +38,12 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView {
 
     private var scrollListener: EndlessRecyclerViewScrollListener? = null
 
-    var imageUrlList: ArrayList<Urls> = ArrayList()
+    private var imageUrlList: ArrayList<Urls> = ArrayList()
 
     private var presenter: MainContract.MainActivityPresenter? = null
+
+    private var imageClickPosition:Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -40,7 +55,14 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView {
 
         setupToolbar()
         setupRecyclerView()
-        presenter = MainActivityPresenterImpl(adapter,this, this)
+        prepareTransitions()
+
+        presenter = MainActivityPresenterImpl(adapter, this, this)
+    }
+
+    override fun onResume() {
+        scrollToPosition()
+        super.onResume()
     }
 
     override fun onDestroy() {
@@ -53,24 +75,24 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView {
 
     //onSearch being called here
     private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar!!.myToolbar)
-        binding.toolbar!!.btSearch!!.setOnClickListener(View.OnClickListener { it: View ->
+        setSupportActionBar(binding.toolbar.myToolbar)
+        binding.toolbar.btSearch.setOnClickListener {
 
-            presenter?.onSearch(binding.toolbar?.etSearch?.text.toString().trim(),
+            presenter?.onSearch(binding.toolbar.etSearch.text.toString().trim(),
                     1,
                     false)
 
-        })
+        }
     }
 
     private fun setupRecyclerView() {
         /*initialization*/
         gridLayoutManager = VarColumnGridLayoutManager(this, 2)
-        adapter = ImageRecyclerAdapter(imageUrlList, this)
+        adapter = ImageRecyclerAdapter(imageUrlList, this, this)
         scrollListener = object : EndlessRecyclerViewScrollListener(gridLayoutManager) {
             override fun onLoadMore(page: Int, totalItemsCount: Int) {
                 if (!isOffline)
-                    presenter?.onSearch(binding.toolbar?.etSearch?.text.toString().trim(),
+                    presenter?.onSearch(binding.toolbar.etSearch.text.toString().trim(),
                             page,
                             true)
             }
@@ -86,13 +108,13 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView {
         /*setting ends*/
     }
 
-
     //here we got the result
     override fun onSearchResult(result: ArrayList<Urls>) {
         val curSize: Int = adapter.itemCount
         imageUrlList.addAll(result)
         adapter.notifyItemRangeInserted(curSize, imageUrlList.size - 1)
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toolbar_menu, menu)
@@ -101,20 +123,20 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         // Handle item selection
-        when (item?.getItemId()) {
+        return when (item?.itemId) {
             R.id.mit_two_col -> {
                 gridLayoutManager.updateSpanCount(2)
-                return true
+                true
             }
             R.id.mit_three_col -> {
                 gridLayoutManager.updateSpanCount(3)
-                return true
+                true
             }
             R.id.mit_four_col -> {
                 gridLayoutManager.updateSpanCount(4)
-                return true
+                true
             }
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
 
     }
@@ -145,4 +167,100 @@ class MainActivity : AppCompatActivity(), MainContract.MainActivityView {
     override fun onOffline(offline: Boolean) {
         isOffline = offline
     }
+
+    override fun onImageClick(pos: Int, imageUrls: Urls, shareImageView: AppCompatImageView) {
+        imageClickPosition = pos
+        val intent: Intent = Intent(this, ImageActivity::class.java)
+
+        intent.putExtra(Constant.EXTRA_IMAGE_URL_LIST, getSmallUrlStringListFromDataSet())
+        intent.putExtra(Constant.EXTRA_IMAGE_TRANSITION_NAME,
+                ViewCompat.getTransitionName(shareImageView))
+        intent.putExtra(Constant.EXTRA_IMAGE_INITIAL_POS, pos)
+        val options: ActivityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                this,
+                shareImageView,
+                ViewCompat.getTransitionName(shareImageView)!!)
+
+
+        startActivity(intent, options.toBundle())
+    }
+
+    private fun getSmallUrlStringListFromDataSet():ArrayList<String>{
+        val smallStringList : ArrayList<String> = ArrayList()
+        for(urls:Urls in imageUrlList){
+            smallStringList.add(urls.small)
+        }
+        return smallStringList
+    }
+
+    override fun onActivityReenter(resultCode: Int, data: Intent?) {
+        super.onActivityReenter(resultCode, data)
+        if(resultCode == Activity.RESULT_OK && data != null)
+            imageClickPosition = data.getIntExtra(Constant.EXTRA_IMAGE_EXIT_POS,
+                    imageClickPosition)
+    }
+
+    /**
+     * Prepares the shared element transition to the pager fragment, as well as the other transitions
+     * that affect the flow.
+     */
+    private fun prepareTransitions() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.exitTransition =  (TransitionInflater.from(this)
+                    .inflateTransition(R.transition.change_image_transform))
+        }
+
+        // A similar mapping is set at the ImageActivity with a setEnterSharedElementCallback.
+        setExitSharedElementCallback(
+                object : SharedElementCallback() {
+                    override fun onMapSharedElements(names: List<String>,
+                                                     sharedElements: MutableMap<String, View>) {
+                        // Locate the ViewHolder for the clicked position.
+
+                        val selectedViewHolder = binding.rvImages
+                                .findViewHolderForAdapterPosition(imageClickPosition)
+                        if (selectedViewHolder?.itemView == null) {
+                            return
+                        }
+
+                        // Map the first shared element name to the child ImageView.
+                        sharedElements[names[0]] = selectedViewHolder
+                                .itemView.findViewById(R.id.iv_image)
+                    }
+                })
+    }
+
+    /**
+     * Scrolls the recycler view to show the last viewed item in the grid. This is important when
+     * navigating back from the grid.
+     */
+    private fun scrollToPosition() {
+        binding.rvImages.addOnLayoutChangeListener(object : OnLayoutChangeListener {
+            override fun onLayoutChange(v: View,
+                                        left: Int,
+                                        top: Int,
+                                        right: Int,
+                                        bottom: Int,
+                                        oldLeft: Int,
+                                        oldTop: Int,
+                                        oldRight: Int,
+                                        oldBottom: Int) {
+                binding.rvImages.removeOnLayoutChangeListener(this)
+                val layoutManager = binding.rvImages.layoutManager
+                val viewAtPosition = layoutManager?.findViewByPosition(imageClickPosition)
+                // Scroll to position if the view for the current position is null
+                // (not currently part of
+                // layout manager children), or it's not completely visible.
+                if (viewAtPosition == null || layoutManager
+                                .isViewPartiallyVisible(viewAtPosition
+                                        , false
+                                        , true)) {
+                    binding.rvImages.post { layoutManager?.scrollToPosition(imageClickPosition) }
+                }
+            }
+        })
+    }
+
+
 }

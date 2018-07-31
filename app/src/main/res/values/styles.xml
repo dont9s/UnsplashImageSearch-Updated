@@ -1,8 +1,12 @@
 <resources>
 
-    <!-- Base application theme. --><!--android:theme="@style/Theme.AppCompat.Light.NoActionBar"
--->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="BaseAppTheme">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="BaseAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -17,5 +21,10 @@
     <style name="AppButton" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:background">@color/colorPrimaryDark</item>
         <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="AppTheme.Transparent" parent="AppTheme">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
     </style>
 </resources>

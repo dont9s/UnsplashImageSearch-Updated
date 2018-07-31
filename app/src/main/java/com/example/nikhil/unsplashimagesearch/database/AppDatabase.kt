@@ -7,7 +7,7 @@ import android.content.Context
 import com.example.nikhil.unsplashimagesearch.model.Urls
 
 
-@Database(entities = arrayOf(Urls::class), version = 1)
+@Database(entities = arrayOf(Urls::class), version = 1, exportSchema = false)
 abstract class AppDatabase: RoomDatabase() {
 
     abstract fun urlDao(): UrlDao

@@ -8,7 +8,7 @@ import android.arch.persistence.room.PrimaryKey
 
 @Entity(indices = arrayOf(Index(value = arrayOf("query", "raw", "full", "regular", "small", "thumb"),
         unique = true)))
-data class Urls(
+data class Urls (
 
         @PrimaryKey(autoGenerate = true)
         var uid: Int,
@@ -30,7 +30,5 @@ data class Urls(
 
         @ColumnInfo(name = "thumb")
         val thumb: String
-/*
-        @ColumnInfo(name = "created_at")
-        var created_at: Long*/
+
 )
